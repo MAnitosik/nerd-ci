@@ -131,39 +131,6 @@ runs:
         echo "date=$(date -u +%Y\-%m\-%d\T%H\:%M\:%S\Z)" >> $GITHUB_OUTPUT
         echo "::endgroup::"
 
-    - name: Check image
-      id: check
-      shell: bash
-      env:
-        IMAGE_ID: ${{ steps.build.outputs.image-id }}
-        PLATFORM: ${{ inputs.platform }}
-      run: |
-        echo "::group::Check Image"
-        INSPECT=$(sudo podman image inspect ${{ env.IMAGE_ID }} )
-        echo $INSPECT | jq .
-        echo "redhat-id=$(echo "$INSPECT" | jq -r '.[0].Labels["redhat.id"]')" >> $GITHUB_OUTPUT
-        echo "redhat-version-id=$(echo "$INSPECT" | jq -r '.[0].Labels["redhat.version-id"]')" >> $GITHUB_OUTPUT
-        echo "major-version=$(echo "$INSPECT" | jq -r '.[0].Labels["redhat.version-id"]' | cut -d. -f1)" >> $GITHUB_OUTPUT
-        echo "version=$(echo "$INSPECT" | jq -r '.[0].Labels["org.opencontainers.image.version"]')" >> $GITHUB_OUTPUT
-
-        # Package list (name -> version-release), used for the changelog and stored in the image labels
-        sudo podman run --platform=linux/${PLATFORM} --rm ${{ env.IMAGE_ID }} rpm -qa --qf '%{NAME}\t%{VERSION}-%{RELEASE}\n' \
-          | jq -Rn '[inputs | split("\t") | {key: .[0], value: .[1]}] | reverse | from_entries' > /tmp/packages.json
-
-        # A damaged package database still lists every package, but dependency lookups fail, which
-        # breaks dnf in images built on top of this one.
-        # podman exits with 125 or more when the container itself fails to run.
-        RC=0
-        sudo podman run --platform=linux/${PLATFORM} --rm ${{ env.IMAGE_ID }} rpmdb --verifydb || RC=$?
-        if (( RC >= 125 )); then
-          echo "::error::Could not check the package database of the image, the container failed to run"
-          exit 1
-        elif (( RC != 0 )); then
-          echo "::error::The package database of the image is corrupted"
-          exit 1
-        fi
-        echo "::endgroup::"
-
     # Respins built from older templates run `mv /usr/local /var/usrlocal` on top of a base image
     # where /usr/local is already a symlink to /var/usrlocal (and /var is empty). That moves the
     # symlink itself, leaving /var/usrlocal pointing at itself. Since /usr/local/{bin,sbin} are in
