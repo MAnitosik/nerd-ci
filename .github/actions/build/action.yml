@@ -395,6 +395,8 @@ runs:
         # a local image by its name when given --platform, as images don't record the variant.
         LABELED_ID=$(cut -d: -f2 /tmp/labeled-image-id)
 
+        RECHUNK_FIX=quay.io/centos-bootc/bootc-image-builder:latest
+        podman pull --platform=linux/${PLATFORM} "${RECHUNK_FIX}"
         # rpm-ostree needs /var/tmp as scratch space, which the image may not have (/var is usually emptied)
         sudo podman run --rm \
           --platform=linux/${PLATFORM} \
@@ -404,7 +406,7 @@ runs:
           -v /var/lib/containers:/var/lib/containers \
           -v /var/tmp:/var/tmp \
           --entrypoint=/usr/libexec/bootc-base-imagectl \
-          $LABELED_ID \
+          "${RECHUNK_FIX}" \
           rechunk $LABELED_ID $RECHUNKED
 
         # Move the rechunked image out of root's storage, removing the originals to make space
