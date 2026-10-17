@@ -110,7 +110,7 @@ on:
 
 env:
   SIGNING_ENABLED: ${{ (secrets.SIGNING_SECRET != null && secrets.SIGNING_SECRET != '') || inputs.KMS_KEY_ALIAS != '' }}
-  INTERNAL_ACTIONS_REF: v13
+  INTERNAL_ACTIONS_REF: main
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref || github.run_id }}-${{ inputs.image-name }}
@@ -130,7 +130,7 @@ jobs:
       - name: Checkout github actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: AlmaLinux/atomic-ci
+          repository: MAnitosik/nerd-ci
           ref: ${{ env.INTERNAL_ACTIONS_REF }}
           path: github-actions
 
@@ -164,7 +164,7 @@ jobs:
       - name: Checkout github actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: AlmaLinux/atomic-ci
+          repository: MAnitosik/nerd-ci
           ref: ${{ env.INTERNAL_ACTIONS_REF }}
           path: github-actions
 
@@ -232,7 +232,7 @@ jobs:
       - name: Checkout github actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: AlmaLinux/atomic-ci
+          repository: MAnitosik/nerd-ci
           ref: ${{ env.INTERNAL_ACTIONS_REF }}
           path: github-actions
 

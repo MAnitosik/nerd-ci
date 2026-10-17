@@ -83,7 +83,7 @@ on:
         required: false
 
 env:
-  INTERNAL_ACTIONS_REF: v13
+  INTERNAL_ACTIONS_REF: main
 
 jobs:
   generate_matrix:
@@ -118,7 +118,7 @@ jobs:
       - name: Checkout github actions
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: AlmaLinux/atomic-ci
+          repository: MAnitosik/nerd-ci
           ref: ${{ env.INTERNAL_ACTIONS_REF }}
           path: github-actions
 
